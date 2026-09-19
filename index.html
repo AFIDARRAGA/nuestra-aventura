@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#101528" />
+  <title>Nuestra Aventura — v4.8</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+</head>
+<body>
+  <div id="rotate-hint" aria-hidden="true">
+    <div class="rotate-card">
+      <div class="rotate-icon">↻</div>
+      <h1>Gira tu teléfono</h1>
+      <p>Nuestra aventura está diseñada para jugarse en horizontal.</p>
+    </div>
+  </div>
+  <main id="app">
+    <div id="game"></div>
+    <div id="loading">Cargando nuestra aventura…</div>
+    <audio id="bg-music" src="assets/music/wonderwall.mp3" preload="metadata" loop></audio>
+    <audio id="level-music" src="assets/music/yellow.mp3" preload="metadata" loop></audio>
+    <audio id="aruba-music" src="assets/music/chachacha.mp3" preload="metadata"></audio>
+    <audio id="track-comecloser" src="assets/music/come_a_little_closer.mp3" preload="metadata"></audio>
+    <audio id="track-kids" src="assets/music/kids.mp3" preload="metadata"></audio>
+    <audio id="track-electriclove" src="assets/music/electric_love.mp3" preload="metadata"></audio>
+    <audio id="track-vamonos" src="assets/music/vamonos_a_marte.mp3" preload="metadata"></audio>
+    <audio id="track-canicall" src="assets/music/can_i_call_you_tonight.mp3" preload="metadata"></audio>
+    <audio id="track-safeandsound" src="assets/music/safe_and_sound.mp3" preload="metadata"></audio>
+    <audio id="track-feelclose" src="assets/music/feel_so_close.mp3" preload="metadata"></audio>
+    <audio id="track-bittersweet" src="assets/music/bitter_sweet_symphony.mp3" preload="metadata"></audio>
+    <audio id="track-whereismymind" src="assets/music/where_is_my_mind.mp3" preload="metadata"></audio>
+  </main>
+
+  <!-- Phaser queda disponible sin conexión después de la primera carga cuando el juego se sirve por http(s). -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <script src="game.js"></script>
+  <script src="mobile.js"></script>
+</body>
+</html>
