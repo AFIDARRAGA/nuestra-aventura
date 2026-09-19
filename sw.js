@@ -1,4 +1,4 @@
-const CACHE = 'duckventure-v4.8-core';
+const CACHE = 'duckventure-v4.8.1-core';
 const PHASER = 'https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js';
 const CORE = [
   './',
@@ -6,14 +6,7 @@ const CORE = [
   './styles.css',
   './mobile.js',
   './manifest.webmanifest',
-  './game.js',
-  './assets/music/wonderwall.mp3',
-  './assets/music/yellow.mp3',
-  './assets/music/chachacha.mp3',
-  './assets/music/come_a_little_closer.mp3',
-  './assets/music/kids.mp3',
-  './assets/music/electric_love.mp3',
-  './assets/music/vamonos_a_marte.mp3'
+  './game.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -33,8 +26,12 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k !== CACHE && k.startsWith('duckventure-')).map(k => caches.delete(k)));
-    self.clients.claim();
+    await Promise.all(
+      keys
+        .filter(k => k !== CACHE && k.startsWith('duckventure-'))
+        .map(k => caches.delete(k))
+    );
+    await self.clients.claim();
   })());
 });
 
@@ -46,18 +43,34 @@ self.addEventListener('fetch', (event) => {
   const isSameOrigin = url.origin === self.location.origin;
   if (!isPhaser && !isSameOrigin) return;
 
+  // Browsers normally request audio/video with HTTP byte ranges. Returning a
+  // full cached response to a Range request can make <audio>/<video> fail on
+  // GitHub Pages, even though the same files work when opened locally.
+  // Media is therefore always served directly by GitHub/CDN.
+  const isRangeRequest = event.request.headers.has('range');
+  const isMedia = /\.(?:mp3|mp4|m4a|ogg|wav|webm)$/i.test(url.pathname);
+  if (isRangeRequest || isMedia) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Network-first avoids an old service-worker cache keeping a previous game
+  // version after files are updated on GitHub. Cache remains an offline fallback.
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
-    if (cached) return cached;
     try {
       const response = await fetch(event.request);
-      if (response && (response.ok || response.type === 'opaque')) {
+      if (response && response.ok) {
         const cache = await caches.open(CACHE);
         cache.put(event.request, response.clone()).catch(() => {});
       }
       return response;
     } catch (_) {
-      return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
+      const cached = await caches.match(event.request);
+      if (cached) return cached;
+      if (event.request.mode === 'navigate') {
+        return (await caches.match('./index.html')) || new Response('Offline', { status: 503 });
+      }
+      return new Response('Offline', { status: 503, statusText: 'Offline' });
     }
   })());
 });
